@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Loader2, Shield, User } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,44 +10,36 @@ import { Logo } from "@/components/brand";
 import { LanguageToggle, ThemeToggle } from "@/components/controls";
 import { ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import type { Role } from "@/lib/types";
 
-export default function LoginPage() {
-  const t = useTranslations("login");
+export default function SignupPage() {
+  const t = useTranslations("signup");
   const router = useRouter();
-  const { user, loading, login, demoLogin } = useAuth();
+  const { user, loading, register } = useAuth();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user) router.replace("/dashboard");
   }, [loading, user, router]);
 
-  const doDemo = async (role: Role) => {
-    setError(null);
-    setBusy(role);
-    try {
-      await demoLogin(role);
-      router.replace("/dashboard");
-    } catch {
-      setError(t("invalid"));
-      setBusy(null);
-    }
-  };
-
-  const doLogin = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setBusy("manual");
+    if (password.length < 6) {
+      setError(t("passwordShort"));
+      return;
+    }
+    setBusy(true);
     try {
-      await login(email, password);
+      await register(name.trim(), email.trim(), password);
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("invalid"));
-      setBusy(null);
+      setError(err instanceof ApiError ? err.message : t("passwordShort"));
+      setBusy(false);
     }
   };
 
@@ -74,44 +66,17 @@ export default function LoginPage() {
           </div>
 
           <div className="rounded-2xl border border-line bg-surface p-6 glow">
-            <p className="mb-1 text-sm font-semibold text-text">{t("demoTitle")}</p>
-            <p className="mb-4 text-xs text-muted">{t("demoSubtitle")}</p>
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => doDemo("member")}
-                disabled={busy !== null}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-[#04222b] transition hover:bg-accent-strong disabled:opacity-50"
-              >
-                {busy === "member" ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <User size={15} />
-                )}
-                {t("asMember")}
-              </button>
-              <button
-                type="button"
-                onClick={() => doDemo("admin")}
-                disabled={busy !== null}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-text transition hover:border-accent/40 hover:bg-surface-2 disabled:opacity-50"
-              >
-                {busy === "admin" ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Shield size={15} />
-                )}
-                {t("asAdmin")}
-              </button>
-            </div>
-
-            <div className="my-5 flex items-center gap-3 text-xs text-muted">
-              <span className="h-px flex-1 bg-line" />
-              {t("or")}
-              <span className="h-px flex-1 bg-line" />
-            </div>
-
-            <form onSubmit={doLogin} className="space-y-3">
+            <form onSubmit={submit} className="space-y-3">
+              <div>
+                <label className="mb-1.5 block text-sm text-muted">{t("name")}</label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("namePlaceholder")}
+                  required
+                  className="w-full rounded-lg border border-line bg-bg px-3.5 py-2 text-sm text-text outline-none transition focus:border-accent/60"
+                />
+              </div>
               <div>
                 <label className="mb-1.5 block text-sm text-muted">{t("email")}</label>
                 <input
@@ -119,6 +84,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("emailPlaceholder")}
+                  required
                   className="w-full rounded-lg border border-line bg-bg px-3.5 py-2 text-sm text-text outline-none transition focus:border-accent/60"
                 />
               </div>
@@ -129,30 +95,36 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("passwordPlaceholder")}
+                  required
                   className="w-full rounded-lg border border-line bg-bg px-3.5 py-2 text-sm text-text outline-none transition focus:border-accent/60"
                 />
               </div>
               {error && <p className="text-sm text-danger">{error}</p>}
               <button
                 type="submit"
-                disabled={busy !== null || !email || !password}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-text transition hover:border-accent/40 hover:bg-surface-2 disabled:opacity-50"
+                disabled={busy || !name.trim() || !email.trim() || !password}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-[#04222b] transition hover:bg-accent-strong disabled:opacity-50"
               >
-                {busy === "manual" ? (
+                {busy ? (
                   <>
                     <Loader2 size={15} className="animate-spin" />
-                    {t("signingIn")}
+                    {t("creating")}
                   </>
                 ) : (
-                  t("signIn")
+                  t("create")
                 )}
               </button>
             </form>
 
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-xs text-muted">
+              <Sparkles size={13} className="mt-0.5 shrink-0 text-accent" />
+              {t("starterNote")}
+            </div>
+
             <p className="mt-5 text-center text-sm text-muted">
-              {t("noAccount")}{" "}
-              <Link href="/signup" className="font-medium text-accent hover:underline">
-                {t("createOne")}
+              {t("haveAccount")}{" "}
+              <Link href="/login" className="font-medium text-accent hover:underline">
+                {t("signIn")}
               </Link>
             </p>
           </div>

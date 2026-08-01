@@ -73,7 +73,26 @@
     "asAdmin": "Enter as admin",
     "or": "or sign in manually",
     "backHome": "Back to home",
-    "invalid": "Invalid email or password."
+    "invalid": "Invalid email or password.",
+    "noAccount": "New to Otto?",
+    "createOne": "Create an account"
+  },
+  "signup": {
+    "title": "Create your Otto account",
+    "subtitle": "Get your own workspace, preloaded so you can start right away.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@company.com",
+    "passwordPlaceholder": "At least 6 characters",
+    "create": "Create account",
+    "creating": "Creating account",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "backHome": "Back to home",
+    "starterNote": "Your account comes with a sample workspace so Otto has data to work with.",
+    "passwordShort": "Password must be at least 6 characters."
   },
   "nav": {
     "dashboard": "Dashboard",

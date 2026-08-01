@@ -154,7 +154,7 @@ export default function Landing() {
               </Link>
               <a
                 href="#how"
-                className="inline-flex items-center gap-2 rounded-lg border border-line px-5 py-3 text-sm font-semibold text-text transition hover:border-accent/40"
+                className="inline-flex items-center gap-2 rounded-lg border border-line px-5 py-3 text-sm font-semibold text-text transition hover:border-accent/40 hover:bg-surface-2"
               >
                 {t("heroCtaSecondary")}
               </a>

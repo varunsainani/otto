@@ -15,6 +15,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   demoLogin: (role: Role) => Promise<void>;
   logout: () => void;
   refresh: () => Promise<void>;
@@ -59,6 +60,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserState(res.user);
   }, []);
 
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      const res = await api.post<AuthResponse>("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      setToken(res.access_token);
+      setUserState(res.user);
+    },
+    [],
+  );
+
   const demoLogin = useCallback(
     async (role: Role) => {
       const creds = DEMO[role];
@@ -78,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         login,
+        register,
         demoLogin,
         logout,
         refresh: load,

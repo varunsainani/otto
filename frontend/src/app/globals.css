@@ -50,8 +50,16 @@
   --font-mono: var(--font-mono);
 }
 
-* {
-  border-color: var(--line);
+/* Default border color must live in @layer base so utility classes like
+   `hover:border-accent` and colored borders on badges still override it.
+   An unlayered `*` rule would win over Tailwind's utilities layer and silently
+   kill every border-color hover across the app. */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line);
+  }
 }
 
 html {

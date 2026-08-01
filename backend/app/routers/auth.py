@@ -61,6 +61,15 @@ def register(
     session.add(user)
     session.commit()
     session.refresh(user)
+    # Give the new account a ready-to-use starter workspace so Otto has data to
+    # act on immediately (contacts, deals, tasks, notes, docs; web index is global).
+    try:
+        from ..seed import _seed_web, _seed_workspace
+
+        _seed_web(session)
+        _seed_workspace(session, user.id)
+    except Exception:  # noqa: BLE001 - seeding must never block account creation
+        session.rollback()
     token = create_access_token(str(user.id), {"role": user.role})
     return AuthResponse(user=_user_out(user), access_token=token)
 

@@ -73,7 +73,26 @@
     "asAdmin": "Entrar como administrador",
     "or": "o inicia sesión manualmente",
     "backHome": "Volver al inicio",
-    "invalid": "Correo o contraseña no válidos."
+    "invalid": "Correo o contraseña no válidos.",
+    "noAccount": "¿Nuevo en Otto?",
+    "createOne": "Crear una cuenta"
+  },
+  "signup": {
+    "title": "Crea tu cuenta de Otto",
+    "subtitle": "Obtén tu propio espacio de trabajo, precargado para empezar de inmediato.",
+    "name": "Nombre",
+    "email": "Correo",
+    "password": "Contraseña",
+    "namePlaceholder": "Tu nombre",
+    "emailPlaceholder": "tu@empresa.com",
+    "passwordPlaceholder": "Al menos 6 caracteres",
+    "create": "Crear cuenta",
+    "creating": "Creando cuenta",
+    "haveAccount": "¿Ya tienes una cuenta?",
+    "signIn": "Iniciar sesión",
+    "backHome": "Volver al inicio",
+    "starterNote": "Tu cuenta incluye un espacio de trabajo de ejemplo para que Otto tenga datos con que trabajar.",
+    "passwordShort": "La contraseña debe tener al menos 6 caracteres."
   },
   "nav": {
     "dashboard": "Panel",
