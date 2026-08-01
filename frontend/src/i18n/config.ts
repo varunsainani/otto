@@ -6,6 +6,6 @@ export const THEME_COOKIE = "theme";
 
 export const localeNames: Record<Locale, string> = {
   en: "English",
-  es: "Espanol",
-  pt: "Portugues",
+  es: "Español",
+  pt: "Português",
 };
