@@ -1,0 +1,9 @@
+fastapi==0.115.6
+sqlmodel==0.0.22
+psycopg2-binary==2.9.10
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.1
+pydantic-settings==2.7.1
+email-validator==2.2.0
+httpx==0.28.1
+uvicorn==0.34.0
