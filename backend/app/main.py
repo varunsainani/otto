@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import auth
+from .routers import admin, agent, auth, workspace
 
 
 def create_app() -> FastAPI:
@@ -17,6 +17,9 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(auth.router)
+    app.include_router(agent.router)
+    app.include_router(workspace.router)
+    app.include_router(admin.router)
 
     @app.get("/health")
     def health() -> dict:
