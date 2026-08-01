@@ -31,4 +31,8 @@ class AgentStep(SQLModel, table=True):
     observation: str = ""
     status: str = Field(default="ok")  # ok | error
     latency_ms: int = 0
+    # Gemini 2.5 thinking models return a thought_signature on function-call parts
+    # that must be echoed back on the next turn. Persisted so the stateless
+    # serverless advance can reconstruct a valid transcript.
+    signature: str | None = None
     created_at: datetime = Field(default_factory=now_utc)

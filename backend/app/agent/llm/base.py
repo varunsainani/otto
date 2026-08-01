@@ -7,6 +7,7 @@ class ToolCall:
     id: str
     name: str
     args: dict
+    signature: str | None = None
 
 
 @dataclass

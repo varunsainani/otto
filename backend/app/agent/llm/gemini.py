@@ -51,9 +51,13 @@ class GeminiProvider(LLMProvider):
                     parts.append({"text": m["text"]})
                 tc = m.get("tool_call")
                 if tc:
-                    parts.append(
-                        {"functionCall": {"name": tc["name"], "args": tc["args"] or {}}}
-                    )
+                    call_part: dict = {
+                        "functionCall": {"name": tc["name"], "args": tc["args"] or {}}
+                    }
+                    if tc.get("signature"):
+                        # Echo the thought signature so 2.5 models accept the turn.
+                        call_part["thoughtSignature"] = tc["signature"]
+                    parts.append(call_part)
                 if not parts:
                     parts = [{"text": ""}]
                 contents.append({"role": "model", "parts": parts})
@@ -86,6 +90,11 @@ class GeminiProvider(LLMProvider):
                 text_bits.append(p["text"])
             fc = p.get("functionCall")
             if fc and call is None:
-                call = ToolCall(id="call", name=fc.get("name", ""), args=fc.get("args") or {})
+                call = ToolCall(
+                    id="call",
+                    name=fc.get("name", ""),
+                    args=fc.get("args") or {},
+                    signature=p.get("thoughtSignature"),
+                )
         text = "\n".join(b for b in text_bits if b).strip() or None
         return LLMResult(text=text, tool_call=call)

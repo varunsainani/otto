@@ -37,7 +37,12 @@ def build_transcript(run: AgentRun, steps: list[AgentStep]) -> list[dict]:
                 {
                     "role": "assistant",
                     "text": s.thought,
-                    "tool_call": {"id": call_id, "name": s.tool, "args": args},
+                    "tool_call": {
+                        "id": call_id,
+                        "name": s.tool,
+                        "args": args,
+                        "signature": s.signature,
+                    },
                 }
             )
             transcript.append(
@@ -112,6 +117,7 @@ def advance_run(
             observation=answer,
             status="ok",
             latency_ms=latency,
+            signature=result.tool_call.signature,
         )
         session.add(step)
         run.final_answer = answer
@@ -131,6 +137,7 @@ def advance_run(
             observation=observation,
             status=status,
             latency_ms=latency,
+            signature=tc.signature,
         )
         session.add(step)
         run.steps_used = idx + 1
