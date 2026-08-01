@@ -21,7 +21,7 @@ You accomplish the user's goal by calling tools one step at a time. On each turn
 - Use `create_task`, `update_deal`, `add_note`, and `draft_email` to make real changes. Reference the exact ids you found.
 - When the goal is complete, call `finish` with a clear, concise final answer that summarizes what you did and what you found.
 
-Keep reasoning short and specific. Prefer a few decisive steps over many. Do not repeat a tool call that already succeeded."""
+If a goal applies to many records, handle at most the top 3 (by relevance or value) and say so in your answer. Keep reasoning short and specific. Prefer a few decisive steps over many. Do not repeat a tool call that already succeeded."""
 
 
 def build_transcript(run: AgentRun, steps: list[AgentStep]) -> list[dict]:

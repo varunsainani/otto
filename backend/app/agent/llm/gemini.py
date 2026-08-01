@@ -1,8 +1,15 @@
+import time
+
 import httpx
 
 from .base import LLMProvider, LLMResult, ToolCall
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+# Free-tier RPM limits mean a burst of steps can transiently 429. Back off and retry
+# rather than failing the whole run.
+RETRY_STATUSES = {429, 500, 502, 503}
+BACKOFFS = (2.5, 6.0)
 
 
 class GeminiProvider(LLMProvider):
@@ -20,14 +27,25 @@ class GeminiProvider(LLMProvider):
             "tool_config": {"function_calling_config": {"mode": "AUTO"}},
             "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1024},
         }
-        with httpx.Client(timeout=45) as client:
-            resp = client.post(
-                GEMINI_URL.format(model=self.model),
-                params={"key": self.api_key},
-                json=body,
-            )
-        resp.raise_for_status()
-        return self._parse(resp.json())
+        url = GEMINI_URL.format(model=self.model)
+        for attempt in range(len(BACKOFFS) + 1):
+            try:
+                with httpx.Client(timeout=45) as client:
+                    resp = client.post(url, params={"key": self.api_key}, json=body)
+                resp.raise_for_status()
+                return self._parse(resp.json())
+            except httpx.HTTPStatusError as exc:
+                status = exc.response.status_code
+                if status in RETRY_STATUSES and attempt < len(BACKOFFS):
+                    time.sleep(BACKOFFS[attempt])
+                    continue
+                raise
+            except httpx.HTTPError:
+                if attempt < len(BACKOFFS):
+                    time.sleep(BACKOFFS[attempt])
+                    continue
+                raise
+        raise RuntimeError("unreachable")
 
     @staticmethod
     def _decl(tool: dict) -> dict:

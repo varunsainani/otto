@@ -136,7 +136,9 @@
     "statusStopped": "Detenida",
     "errorLabel": "Error",
     "stepLimit": "Otto alcanzó el límite de pasos para esta ejecución.",
-    "llmError": "El agente no pudo completar este paso. Intenta ejecutar el objetivo de nuevo."
+    "llmError": "El agente no pudo completar este paso. Intenta ejecutar el objetivo de nuevo.",
+    "connectionLost": "Se interrumpió la conexión.",
+    "resume": "Reanudar"
   },
   "runsList": {
     "title": "Ejecuciones",

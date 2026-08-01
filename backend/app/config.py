@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     app_url: str = "http://localhost:3000"
     cors_origins: str = "*"
 
-    # LLM
-    llm_provider: str = "gemini"
+    # LLM. Groq is the default: its free tier handles the many calls a tool-using
+    # agent makes far better than Gemini's low free RPM. Gemini/Claude stay switchable.
+    llm_provider: str = "groq"
     gemini_api_key: str = ""
     gemini_model: str = "gemini-flash-latest"
     groq_api_key: str = ""

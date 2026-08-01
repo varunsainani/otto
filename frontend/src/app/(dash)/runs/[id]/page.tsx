@@ -110,12 +110,15 @@ export default function RunPage() {
 
   const [run, setRun] = useState<RunOut | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connLost, setConnLost] = useState(false);
+  const [resumeKey, setResumeKey] = useState(0);
   const userStopRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     userStopRef.current = false;
+    setConnLost(false);
 
     (async () => {
       let current: RunOut | null = null;
@@ -129,23 +132,32 @@ export default function RunPage() {
       setRun(current);
       setLoading(false);
 
+      let fails = 0;
       while (current.status === "running" && !cancelled && !userStopRef.current) {
-        await sleep(450);
+        await sleep(400);
         if (cancelled || userStopRef.current) break;
         try {
           current = await api.post<RunOut>(`/api/runs/${id}/advance`);
+          fails = 0;
+          if (cancelled) break;
+          setRun(current);
         } catch {
-          break;
+          // Transient network blip mid-run: retry the step a few times before
+          // giving up, so one dropped request does not strand the whole run.
+          fails += 1;
+          if (fails >= 3) {
+            if (!cancelled) setConnLost(true);
+            break;
+          }
+          await sleep(1200);
         }
-        if (cancelled) break;
-        setRun(current);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, resumeKey]);
 
   const toolSteps = (run?.steps ?? []).filter(
     (s) => s.tool && s.tool !== "finish",
@@ -240,10 +252,25 @@ export default function RunPage() {
           {toolSteps.map((step, i) => (
             <StepRow key={step.id} step={step} index={i} />
           ))}
-          {running && (
+          {running && !connLost && (
             <div className="flex items-center gap-2 pl-1 text-sm text-muted">
               <Loader2 size={15} className="animate-spin text-accent" />
               {t("thinking")}
+            </div>
+          )}
+          {running && connLost && (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm text-amber">
+              {t("connectionLost")}
+              <button
+                type="button"
+                onClick={() => {
+                  setConnLost(false);
+                  setResumeKey((k) => k + 1);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-amber/50 px-3 py-1.5 font-medium transition hover:bg-amber/10"
+              >
+                {t("resume")}
+              </button>
             </div>
           )}
         </div>

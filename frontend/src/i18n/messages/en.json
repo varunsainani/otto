@@ -136,7 +136,9 @@
     "statusStopped": "Stopped",
     "errorLabel": "Error",
     "stepLimit": "Otto reached the step limit for this run.",
-    "llmError": "The agent could not complete this step. Try running the goal again."
+    "llmError": "The agent could not complete this step. Try running the goal again.",
+    "connectionLost": "The connection was interrupted.",
+    "resume": "Resume"
   },
   "runsList": {
     "title": "Runs",

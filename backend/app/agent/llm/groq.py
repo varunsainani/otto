@@ -1,10 +1,13 @@
 import json
+import time
 
 import httpx
 
 from .base import LLMProvider, LLMResult, ToolCall
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+RETRY_STATUSES = {429, 500, 502, 503}
+BACKOFFS = (2.5, 6.0)
 
 
 class GroqProvider(LLMProvider):
@@ -66,14 +69,28 @@ class GroqProvider(LLMProvider):
             "tool_choice": "auto",
             "temperature": 0.2,
         }
-        with httpx.Client(timeout=45) as client:
-            resp = client.post(
-                GROQ_URL,
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json=body,
-            )
-        resp.raise_for_status()
-        data = resp.json()
+        data = None
+        for attempt in range(len(BACKOFFS) + 1):
+            try:
+                with httpx.Client(timeout=45) as client:
+                    resp = client.post(
+                        GROQ_URL,
+                        headers={"Authorization": f"Bearer {self.api_key}"},
+                        json=body,
+                    )
+                resp.raise_for_status()
+                data = resp.json()
+                break
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in RETRY_STATUSES and attempt < len(BACKOFFS):
+                    time.sleep(BACKOFFS[attempt])
+                    continue
+                raise
+            except httpx.HTTPError:
+                if attempt < len(BACKOFFS):
+                    time.sleep(BACKOFFS[attempt])
+                    continue
+                raise
         msg = (data.get("choices") or [{}])[0].get("message") or {}
         tool_calls = msg.get("tool_calls") or []
         if tool_calls:

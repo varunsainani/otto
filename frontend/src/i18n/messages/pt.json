@@ -136,7 +136,9 @@
     "statusStopped": "Parada",
     "errorLabel": "Erro",
     "stepLimit": "O Otto atingiu o limite de passos desta execução.",
-    "llmError": "O agente não conseguiu concluir este passo. Tente executar o objetivo de novo."
+    "llmError": "O agente não conseguiu concluir este passo. Tente executar o objetivo de novo.",
+    "connectionLost": "A conexão foi interrompida.",
+    "resume": "Retomar"
   },
   "runsList": {
     "title": "Execuções",
